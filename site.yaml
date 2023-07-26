@@ -1,0 +1,104 @@
+
+---       
+- hosts: webservers
+  become: yes
+  gather_facts: yes
+
+  tasks:  
+  - name: Updation of Cache
+    apt:
+      update_cache: yes
+      cache_valid_time: 7200
+      force: yes
+
+  - name: install pip3
+    apt: name=python3-pip state=present update_cache=yes
+
+  - name: install flask
+    pip: 
+      executable: pip3
+      name: flask
+      state: latest
+    
+  - name: copy flask application
+    copy: src=application2.py dest=./application2.py 
+    
+  - name: "install gunicorn"
+    apt:
+        name: gunicorn
+        state: latest
+      
+  - name: "install snmp"
+    apt:
+        name: snmpd
+        state: latest
+        
+  - name: "Configuring snmpd" 
+    template:
+         src: "./snmpd.conf"
+         dest: "/etc/snmp/snmpd.conf"
+    
+  - name: "restarting snmpd"
+    service:
+         name: snmpd
+         state: restarted
+         enabled: yes
+
+  - name: "copying Application2.py"
+    copy:
+        src: ./application2.py
+        dest: ~/application2.py
+        
+  - name: "Running Flask app"
+    shell: gunicorn -w 2 -D -b 0.0.0.0:8080 application2:app
+
+- hosts: webservers
+  gather_facts: yes
+
+- hosts: haproxy
+  become: true    
+  
+  tasks:
+  - name: Update cache
+    become: yes
+    apt:
+      update_cache: yes
+      cache_valid_time: 7200
+      force: yes
+
+  - name: Installing package haproxy
+    become: true
+    apt:
+      name: haproxy
+      state: latest
+
+  - name: Deploy HAProxy
+    template:
+      src: ./haproxy.conf
+      dest: "/etc/haproxy/haproxy.cfg"
+
+  - name: restart Haproxy
+    service:
+      name: haproxy
+      state: restarted
+
+  - name: make sure snmp is installed
+    apt: name=snmp state=latest
+
+  - name: Installing the packages from Nginx
+    apt:
+      name: nginx
+      state: latest
+
+  - name: copy nginx.conf file
+    template:
+     src: "./nginx.conf"
+     dest: /etc/nginx/nginx.conf
+
+  - name: restart  nginx
+    service:
+      name: nginx
+      state: restarted
+
+    
+    
