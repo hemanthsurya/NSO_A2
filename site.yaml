@@ -50,7 +50,7 @@
 - hosts: webservers
   gather_facts: yes
 
-- hosts: haproxy
+- hosts: HAproxy
   become: true    
   
   tasks:
