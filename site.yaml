@@ -28,12 +28,12 @@
         name: gunicorn
         state: latest
       
-  - name: "install snmp"
+  - name: "install snmpd"
     apt:
         name: snmpd
         state: latest
         
-  - name: "Configuring snmpd" 
+  - name: "copy snmpd" 
     template:
          src: "./snmpd.conf"
          dest: "/etc/snmp/snmpd.conf"
@@ -43,12 +43,7 @@
          name: snmpd
          state: restarted
          enabled: yes
-
-  - name: "copying Application2.py"
-    copy:
-        src: ./application2.py
-        dest: ~/application2.py
-        
+     
   - name: "Running Flask app"
     shell: gunicorn -w 2 -D -b 0.0.0.0:8080 application2:app
 
@@ -60,14 +55,12 @@
   
   tasks:
   - name: Update cache
-    become: yes
     apt:
       update_cache: yes
       cache_valid_time: 7200
       force: yes
 
-  - name: Installing package haproxy
-    become: true
+  - name: Installing haproxy
     apt:
       name: haproxy
       state: latest
@@ -100,5 +93,34 @@
       name: nginx
       state: restarted
 
-    
+  - name: haproxy redumentary function test-1
+    uri: url=http://localhost:80/ return_content=yes
+    register: html_body
+  - debug: msg='{{ html_body.content }}'
+
+  - name: haproxy redumentary function test-2
+    uri: url=http://localhost:80/ return_content=yes
+    register: html_body
+  - debug: msg='{{ html_body.content }}'
+
+  - name: haproxy redumentary function test-3
+    uri: url=http://localhost:80/ return_content=yes
+    register: html_body
+  - debug: msg='{{ html_body.content }}'
+
+  - name: checking snmpwalk -1
+    shell: "snmpwalk -t 1 -r 1 -v2c -c public localhost:6000 iso.3.6.1.2.1.1.5.0"
+    register: "output"
+  - debug: var=output.stdout_lines
+
+  - name: checking snmpwalk -2
+    shell: "snmpwalk -t 1 -r 1 -v2c -c public localhost:6000 iso.3.6.1.2.1.1.5.0"
+    register: "output"
+  - debug: var=output.stdout_lines
+
+  - name: checking snmp walk -3
+    shell: "snmpwalk -t 1 -r 1 -v2c -c public localhost:6000 iso.3.6.1.2.1.1.5.0"
+    register: "output"
+  - debug: var=output.stdout_lines
+
     
