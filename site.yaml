@@ -52,7 +52,8 @@
 
 - hosts: HAproxy
   become: true    
-  
+  vars:
+      haproxy_password: "{{ lookup('file', './uipassword') }}" 
   tasks:
   - name: Update cache
     apt:
