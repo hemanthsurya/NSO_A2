@@ -1,4 +1,4 @@
-#######Flask App Deployment with HAProxy, Nginx Load Balancing, and SNMP Monitoring
+#######Flask App Deployment with HAProxy, Nginx Load Balancing, and SNMP Monitoring \
 This repository contains an Ansible playbook for deploying a Flask app behind HAProxy, with Nginx for UDP load balancing, SNMP monitoring on dev servers, and HAProxy performance UI. The deployment is based on the provided network architecture, where the hosts include HAproxy, devA, devB, devC, and Bastion.
 
 Prerequisites
